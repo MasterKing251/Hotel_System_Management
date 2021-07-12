@@ -94,7 +94,7 @@ public class Frame1_LogIn extends javax.swing.JFrame {
         Frame2_Home home = new Frame2_Home();
         String user = user_tf.getText();
         String password = String.valueOf(password_tf.getPassword());
-        String sample;
+        System.out.println("This is for example only");
         try {
             con.connectDB();
             C = DriverManager.getConnection(con.url,con.user,con.password);
