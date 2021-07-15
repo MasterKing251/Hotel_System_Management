@@ -18,24 +18,13 @@ import java.util.HashSet;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 public class Frame3_CheckIn extends javax.swing.JFrame {
+    roomNumber rN = new roomNumber();
     connection con = new connection();
     Connection C = null;
     PreparedStatement stm = null;
     ResultSet rs = null;
     
-    public ResultSet retrieveData(){
-        String sql ="SELECT COUNT(`Room Type`) FROM `costumers` WHERE `Room Type`='Single'";
-        try {
-                C = DriverManager.getConnection(con.url,con.user,con.password);
-                stm = C.prepareStatement(sql);
-                rs = stm.executeQuery();
-            } catch (Exception ex) {
-                System.out.println(ex.toString());
-            }finally {      
-                      //Services.colsedConnections();
-            }
-        return rs;
-    }
+    
     public Frame3_CheckIn() {
         initComponents();
     }
@@ -149,48 +138,54 @@ public class Frame3_CheckIn extends javax.swing.JFrame {
         String lname = lastName_tf.getText();
         String contact = contact_tf.getText();
         String rType = String.valueOf(roomType_cb.getSelectedItem());
-        
+        String roomCode = "";
         
         
         
         try {
             con.connectDB();
             C = DriverManager.getConnection(con.url,con.user,con.password);
-            int ty = 0;
-//            String roomType = "";
-//            if (rType.equals("Single")){
-//                roomType = "SELECT COUNT(`Room Type`) FROM `costumers` WHERE `Room Type`='Single'";
-//            }
-//            else if(rType.equals("Double")){
-//                roomType = "SELECT COUNT(`Room Type`) FROM `costumers` WHERE `Room Type`='Double'";
-//            }
-//            else if (rType.equals("Family")){
-//                roomType = "SELECT COUNT(`Room Type`) FROM `costumers` WHERE `Room Type`='Family'";
-//            }
-//            else
-//                JOptionPane.showMessageDialog(null,"Please select ROOM TYPE");
-//            
-//            stm = C.prepareStatement(roomType);
-//            rs = stm.executeQuery();
-//            System.out.println(rs);
+           
+           
+        //Creating room number
+            String query1 = "SELECT COUNT(`Room Type`) FROM `costumers` WHERE `Room Type`='"+rType+"'";
+            stm = C.prepareStatement(query1);
+            rs = stm.executeQuery();
+        //getting the number of rooms occupied
+            String count ="";
+            
+            if(rs.next()){
+                count = rs.getString("COUNT(`Room Type`)");
+            }
+            rN.setRType(rType);
+            rN.setAddNum();
+            rN.Letter();
+            rN.setCount(Integer.parseInt(count));
+            rN.getCurrentRoomNum();
+        //Generating roomCode   
+            String roomLetter = rN.letter;
+            String roomNumber = String.valueOf(rN.getCurrentRoomNum());
+            roomCode = roomLetter + roomNumber;
             
             
             
+        //Setting the data
             String query = "INSERT INTO `costumers`(`Date`, `First Name`, `Last Name`, `Contact`, `Room Type`,`Room Number`)"
                     + " VALUES (?,?,?,?,?,?)";
             stm = C.prepareStatement(query);
+            
             stm.setString(1, date);
             stm.setString(2, fname);
             stm.setString(3, lname);
             stm.setString(4, contact);
             stm.setString(5, rType);
-            stm.setString(6, "8");
+            stm.setString(6, roomCode);
             int i = stm.executeUpdate();
             
             if (i > 0){
                 JOptionPane.showMessageDialog(null, "Checked In");
             }
-             System.out.println(retrieveData());           
+                     
             
         } catch (Exception e) {
             System.out.println(e);
